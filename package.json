@@ -1,0 +1,24 @@
+{
+  "name": "tinder-messenger",
+  "version": "1.0.0",
+  "description": "WORK IN PROGRESS",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RandomSeeded/T-Messenger.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/RandomSeeded/T-Messenger/issues"
+  },
+  "homepage": "https://github.com/RandomSeeded/T-Messenger#readme",
+  "dependencies": {
+    "lodash": "^4.17.4",
+    "moment": "^2.19.2",
+    "request": "^2.83.0"
+  }
+}
