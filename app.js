@@ -42,7 +42,7 @@ app.post('/sms', async (req, res, next) => {
   sendMessage(mostRecentMatch._id, messageBody);
 });
 
-app.listen(1337, () => console.log('Example app listening on port 1337!'))
+app.listen(2674, () => console.log('Example app listening on port 2674!'))
 
 async function sendMessage(matchId, message) {
   console.log('sending tinder message', message);
