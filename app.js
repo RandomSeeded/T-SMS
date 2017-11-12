@@ -5,6 +5,12 @@ const moment = require('moment');
 const request = require('request');
 
 const facebookAuthToken = require('./fbAuthToken');
+const TEMP_TOKENS = require('./TEMP_TOKENS');
+
+// require the Twilio module and create a REST client
+const twilioId = TEMP_TOKENS.twilioId;
+const twilioAuthToken = TEMP_TOKENS.twilioAuthToken;
+const client = require('twilio')(twilioId, twilioAuthToken);
 
 const host = 'https://api.gotinder.com'
 const headers = {
@@ -72,20 +78,41 @@ async function getNewMessagesForMatch(match) {
         messageCache[message._id] = message;
         return isNewMessage;
       });
+      const newMessagesWithName = _.map(newMessages, message => {
+        message.name = match.person.name
+        return message;
+      });
 
-      resolve(newMessages);
+      resolve(newMessagesWithName);
     });
   });
 }
 
-// TODO (nw): every fucking name here is terrible, fix
+async function sendSMS(body) {
+  return client.messages
+    .create({
+      to: TEMP_TOKENS.myPhoneNumber,
+      from: TEMP_TOKENS.twilioPhoneNumber,
+      body,
+    })
+    .then((message) => console.log(`Message sent: ${message.sid}`));
+}
+
+function generateMessageBody(message) {
+  return `From: ${message.name}
+    
+    ${message.message}`;
+}
+
 async function run() {
   const authToken = await getAuthToken(facebookAuthToken.getFacebookAccessToken(), facebookAuthToken.getFacebookId());
-  // TODO (nw): ewwww hacky side effects, fix this
   headers['X-Auth-Token'] = authToken;
   const matches = await getMatches();
   const peopleWithNewMessages = _.filter(matches, checkMatchHasRecentMessage);
   const newMessages = await Promise.all(_.map(peopleWithNewMessages, getNewMessagesForMatch));
+  const formattedMessages = _.map(_.flatten(newMessages), generateMessageBody);
+  // Product question: do we want to include the messages you sent? No.
+  _.each(formattedMessages, sendSMS);
 }
 
 run();
