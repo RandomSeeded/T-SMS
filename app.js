@@ -152,7 +152,7 @@ function generateMessageBody(message) {
     ${message.message}`;
 }
 
-async function run(sendMessages) {
+async function run(init) {
   const [authToken, selfId] = await getAuthToken(facebookAuthToken.getFacebookAccessToken(), facebookAuthToken.getFacebookId());
   tinderSelfId = selfId;
   headers['X-Auth-Token'] = authToken;
@@ -161,12 +161,12 @@ async function run(sendMessages) {
   const newMessages = await Promise.all(_.map(peopleWithNewMessages, getNewMessagesForMatch));
   const formattedMessages = _.map(_.flatten(newMessages), generateMessageBody);
   // Don't send messages the first time we startup: this is just to populate the cache
-  if (sendMessages) {
+  if (!init) {
     _.each(formattedMessages, sendSMS);
   }
 }
 
-run(false);
+run(true);
 setInterval(() => {
-  run(true);
-}, 5000);
+  run(false);
+}, 50000);
