@@ -133,8 +133,14 @@ function checkMatchHasRecentMessage(match) {
   return moment(lastMessageSentDate).valueOf() > recencyThreshold;
 }
 
-const messageCache = {};
 async function getNewMessagesForMatch(match, authToken) {
+  // TODO (nw): dedupe this
+  const db = await util.promisify(MongoClient.connect)(MongoUrl);
+  const messagesColl = db.collection('messages');
+  // TODO (nw): grab only messages for the specific user
+  const allSavedMessages = await messagesColl.find({}).toArray();
+  const messageCache = _.keyBy(allSavedMessages, '_id');
+
   const url = `${host}/v2/matches/${match._id}/messages?count=100&locale=en`;
   const headers = _.extend(baseHeaders, {
     ['X-Auth-Token']: authToken,
@@ -146,17 +152,20 @@ async function getNewMessagesForMatch(match, authToken) {
 
       const parsedBody = JSON.parse(body);
       // Boooo side effects figure out better pattern here
+      // TODO (nw): should be able to just do a _.diff now
       const newMessages = _.filter(parsedBody.data.messages, message => {
         const isNewMessage = !messageCache[message._id];
-        messageCache[message._id] = message;
+        // messageCache[message._id] = message;
         return isNewMessage && message.from !== tinderSelfId;
       });
       const newMessagesWithName = _.map(newMessages, message => {
         message.name = match.person.name
         return message;
       });
-
-      resolve(newMessagesWithName);
+      if (_.isEmpty(newMessagesWithName)) {
+        return resolve([]);
+      }
+      return messagesColl.insertMany(newMessagesWithName).then(() => resolve(newMessagesWithName));
     });
   });
 }
