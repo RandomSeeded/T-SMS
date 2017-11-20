@@ -18,7 +18,7 @@ const twilioAuthToken = TEMP_TOKENS.twilioAuthToken;
 const client = require('twilio')(twilioId, twilioAuthToken);
 
 const host = 'https://api.gotinder.com'
-const headers = {
+const baseHeaders = {
   'app_version': '6.9.4',
   'platform': 'ios',
   'content-type': 'application/json',
@@ -37,20 +37,37 @@ app.use(bodyParser.json());
 const MessagingResponse = require('twilio').twiml.MessagingResponse;
 app.post('/sms', async (req, res, next) => {
   const messageBody = req.body.Body;
+  const senderPhoneNumber = req.body.From;
   const twiml = new MessagingResponse();
+  // TODO (nw): figure out how to not have invalid body here (works but Twilio sends annoying email)
   twiml.message('');
 
   res.writeHead(200, {'Content-Type': 'text/xml'});
   res.end(twiml.toString());
 
-  const mostRecentMatch = await getMostRecentMatch();
-  sendMessage(mostRecentMatch._id, messageBody);
+  // TODO (nw): refactor the dupe code
+  const db = await util.promisify(MongoClient.connect)(MongoUrl);
+  const usersColl = db.collection('users');
+  const user = _.first(await usersColl.find({ phoneNumber: senderPhoneNumber }).toArray());
+  const { facebookAccessToken, facebookId } = user;
+  const [authToken, selfId] = await getAuthToken(facebookAccessToken, facebookId);
+  const mostRecentMatch = await getMostRecentMatch(authToken);
+  // TODO (nw): it would be good to have a demo mode flag which doesn't actually send messages
+  sendMessage(mostRecentMatch._id, messageBody, authToken);
 });
 
 app.listen(2674, () => console.log('Example app listening on port 2674!'))
 
-async function sendMessage(matchId, message) {
+// TODO (nw): determine here which user the message is for and send it to appropriate user
+// Need to attach per-user auth header. Is this currently stored in DB or do we need to re-query?
+// How does Twilio pass the phone number this is from? Presumably on req.Body to /sms
+// Re: token, we have two options: 
+async function sendMessage(matchId, message, facebookAccessToken, facebookId) {
   console.log('sending tinder message', message);
+  const [authToken, selfId] = await getAuthToken(facebookAccessToken, facebookId);
+  const headers = _.extend(baseHeaders, {
+    ['X-Auth-Token']: authToken,
+  });
   const url = `${host}/user/matches/${matchId}`;
   const requestOpts = {
     url,
@@ -70,7 +87,7 @@ async function getAuthToken(facebook_token, facebook_id, cb) {
   const url = `${host}/auth`;
   const requestOpts = {
     url,
-    headers,
+    headers: baseHeaders,
     body: JSON.stringify({ facebook_token, facebook_id }),
   };
   // Use a conversion library this sucks
@@ -84,8 +101,11 @@ async function getAuthToken(facebook_token, facebook_id, cb) {
   });
 };
 
-async function getMatches() {
+async function getMatches(authToken) {
   const url = `${host}/v2/matches`;
+  const headers = _.extend(baseHeaders, {
+    ['X-Auth-Token']: authToken,
+  });
   const requestOpts = {
     url,
     headers,
@@ -99,8 +119,8 @@ async function getMatches() {
   });
 }
 
-async function getMostRecentMatch() {
-  const matches = await getMatches();
+async function getMostRecentMatch(authToken) {
+  const matches = await getMatches(authToken);
   return _.first(matches);
 }
 
@@ -115,8 +135,11 @@ function checkMatchHasRecentMessage(match) {
 }
 
 const messageCache = {};
-async function getNewMessagesForMatch(match) {
+async function getNewMessagesForMatch(match, authToken) {
   const url = `${host}/v2/matches/${match._id}/messages?count=100&locale=en`;
+  const headers = _.extend(baseHeaders, {
+    ['X-Auth-Token']: authToken,
+  });
   const requestOpts = { url, headers };
   return new Promise((resolve, reject) => {
     request.get(requestOpts, function(err, res, body) {
@@ -165,13 +188,12 @@ async function run(init) {
     const { facebookAccessToken, facebookId } = user;
     const [authToken, selfId] = await getAuthToken(facebookAccessToken, facebookId);
     tinderSelfId = selfId;
-    headers['X-Auth-Token'] = authToken;
-    const matches = await getMatches();
+    const matches = await getMatches(authToken);
     const peopleWithNewMessages = _.filter(matches, checkMatchHasRecentMessage);
-    const newMessages = await Promise.all(_.map(peopleWithNewMessages, getNewMessagesForMatch));
+    const newMessages = await Promise.all(_.map(peopleWithNewMessages, 
+      personWithNewMessage => getNewMessagesForMatch(personWithNewMessage, authToken)));
     const formattedMessages = _.map(_.flatten(newMessages), generateMessageBody);
     // Don't send messages the first time we startup: this is just to populate the cache
-    sendSMS(_.first(formattedMessages), user.phoneNumber);
     if (!init) {
       _.each(formattedMessages, formattedMessage => sendSMS(formattedMessage, user.phoneNumber));
     }
