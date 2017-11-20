@@ -6,6 +6,7 @@ Things necessary for public demo:
 1. ~~Multiple user support~~
 2. ~~Persistence~~
 3. Domain / waitlist page? Nah just google forms it
+4. Improve readme?
 
 Things necessary for full launch:
 1. Payment options
