@@ -3,18 +3,22 @@
 ### TODOs:
 
 Things necessary for public demo:
-1. Multiple user support
+1. Multiple user support (SMS -> user)
 2. Persistence
 3. ??
 
 Things necessary for full launch:
 1. Payment options
 2. Landing page / signup flow
-3. ??
+3. SSL
+4. ??
 
 Features that would be really good to have but are not essential:
 1. Multiple phone numbers (one per conversation)
 2. ??
+
+Bugfixes:
+1. Handle case where you receive multiple messages in same interval (sort by timestamp)
 
 -----------
 
@@ -47,3 +51,4 @@ Application flow: once per minute per user, we:
 - ~~auth as that user~~
 - ~~check for new Tinder messages for the user~~
 - ~~send any new messages to the user~~
+- PERSIST MESSAGES (right now uses messageCache, aka single user)
