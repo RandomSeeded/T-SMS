@@ -25,5 +25,5 @@ Bugfixes:
 
 ### Implementation Details:
 
-~~ Multiple user support / persistence: ~~
+~~Multiple user support / persistence:~~
 
