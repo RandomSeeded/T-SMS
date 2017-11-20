@@ -1,11 +1,16 @@
 'use strict';
 
 const _ = require('lodash');
+const async = require('async');
 const moment = require('moment');
 const request = require('request');
+const util = require('util');
 
 const facebookAuthToken = require('./fbAuthToken');
 const TEMP_TOKENS = require('./TEMP_TOKENS');
+
+const MongoUrl = 'mongodb://localhost:27017/tinder-messenger';
+const MongoClient = require('mongodb').MongoClient;
 
 // require the Twilio module and create a REST client
 const twilioId = TEMP_TOKENS.twilioId;
@@ -152,20 +157,27 @@ function generateMessageBody(message) {
 }
 
 async function run(init) {
-  const [authToken, selfId] = await getAuthToken(facebookAuthToken.getFacebookAccessToken(), facebookAuthToken.getFacebookId());
-  tinderSelfId = selfId;
-  headers['X-Auth-Token'] = authToken;
-  const matches = await getMatches();
-  const peopleWithNewMessages = _.filter(matches, checkMatchHasRecentMessage);
-  const newMessages = await Promise.all(_.map(peopleWithNewMessages, getNewMessagesForMatch));
-  const formattedMessages = _.map(_.flatten(newMessages), generateMessageBody);
-  // Don't send messages the first time we startup: this is just to populate the cache
-  if (!init) {
-    _.each(formattedMessages, sendSMS);
-  }
+  // Should be moved out of here; we don't want to connect every run.
+  const db = await util.promisify(MongoClient.connect)(MongoUrl);
+  const usersColl = db.collection('users');
+  const users = await usersColl.find({}).toArray();
+  _.each(users, async user => {
+    const { facebookAccessToken, facebookId } = user;
+    const [authToken, selfId] = await getAuthToken(facebookAccessToken, facebookId);
+    tinderSelfId = selfId;
+    headers['X-Auth-Token'] = authToken;
+    const matches = await getMatches();
+    const peopleWithNewMessages = _.filter(matches, checkMatchHasRecentMessage);
+    const newMessages = await Promise.all(_.map(peopleWithNewMessages, getNewMessagesForMatch));
+    const formattedMessages = _.map(_.flatten(newMessages), generateMessageBody);
+    // Don't send messages the first time we startup: this is just to populate the cache
+    if (!init) {
+      _.each(formattedMessages, sendSMS);
+    }
+  });
 }
 
 run(true);
 setInterval(() => {
   run(false);
-}, 50000);
+}, 60000);
