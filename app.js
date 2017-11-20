@@ -139,11 +139,11 @@ async function getNewMessagesForMatch(match) {
   });
 }
 
-async function sendSMS(body) {
+async function sendSMS(body, phoneNumber) {
   console.log('sending SMS', body);
   return client.messages
     .create({
-      to: TEMP_TOKENS.myPhoneNumber,
+      to: phoneNumber,
       from: TEMP_TOKENS.twilioPhoneNumber,
       body,
     })
@@ -171,8 +171,9 @@ async function run(init) {
     const newMessages = await Promise.all(_.map(peopleWithNewMessages, getNewMessagesForMatch));
     const formattedMessages = _.map(_.flatten(newMessages), generateMessageBody);
     // Don't send messages the first time we startup: this is just to populate the cache
+    sendSMS(_.first(formattedMessages), user.phoneNumber);
     if (!init) {
-      _.each(formattedMessages, sendSMS);
+      _.each(formattedMessages, formattedMessage => sendSMS(formattedMessage, user.phoneNumber));
     }
   });
 }

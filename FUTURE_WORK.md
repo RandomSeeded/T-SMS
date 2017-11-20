@@ -43,7 +43,7 @@ Data model example:
 ```
 
 Application flow: once per minute per user, we:
-- retrieve the user and tokens from the DB
-- auth as that user
-- check for new Tinder messages for the user
-- send any new messages to the user
+- ~~retrieve the user and tokens from the DB~~
+- ~~auth as that user~~
+- ~~check for new Tinder messages for the user~~
+- ~~send any new messages to the user~~
