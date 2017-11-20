@@ -3,8 +3,8 @@
 ### TODOs:
 
 Things necessary for public demo:
-1. Multiple user support (SMS -> user)
-2. Persistence
+1. Multiple user support (mostly done)
+2. Persistence (mostly done)
 3. ??
 
 Things necessary for full launch:
@@ -26,9 +26,9 @@ Bugfixes:
 
 Multiple user support / persistence:
 
-- What needs to be stored? API tokens from users. Anything else? Right now we have a message cache which is done per user. We will want to persist that as well.
+- What needs to be stored? API tokens from users. Anything else? **Right now we have a message cache which is done per user. We will want to persist that as well.**
 - We may hit API rate limits when we're handling multiple users. Unclear how we'd handle that issue if it does exist
-- We also need to be associate incoming messages with the phone number they're from
+- ~~We also need to be associate incoming messages with the phone number they're from~~
 - How do you plan on adding the users to the public demo? Prob just by hand to get it out faster
 
 Data model example:
@@ -51,4 +51,3 @@ Application flow: once per minute per user, we:
 - ~~auth as that user~~
 - ~~check for new Tinder messages for the user~~
 - ~~send any new messages to the user~~
-- PERSIST MESSAGES (right now uses messageCache, aka single user)
