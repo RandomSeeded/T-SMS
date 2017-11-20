@@ -3,6 +3,7 @@
 const _ = require('lodash');
 const async = require('async');
 const moment = require('moment');
+const process = require('process');
 const request = require('request');
 const util = require('util');
 
@@ -58,11 +59,9 @@ app.post('/sms', async (req, res, next) => {
 
 app.listen(2674, () => console.log('Example app listening on port 2674!'))
 
-// TODO (nw): determine here which user the message is for and send it to appropriate user
-// Need to attach per-user auth header. Is this currently stored in DB or do we need to re-query?
-// How does Twilio pass the phone number this is from? Presumably on req.Body to /sms
-// Re: token, we have two options: 
 async function sendMessage(matchId, message, facebookAccessToken, facebookId) {
+  if (process.env.NODE_ENV === 'DEV') return;
+
   console.log('sending tinder message', message);
   const [authToken, selfId] = await getAuthToken(facebookAccessToken, facebookId);
   const headers = _.extend(baseHeaders, {
@@ -163,6 +162,7 @@ async function getNewMessagesForMatch(match, authToken) {
 }
 
 async function sendSMS(body, phoneNumber) {
+  if (process.env.NODE_ENV === 'DEV') return;
   console.log('sending SMS', body);
   return client.messages
     .create({
