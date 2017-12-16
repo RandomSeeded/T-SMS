@@ -62,26 +62,34 @@ app.post('/sms', async (req, res, next) => {
 
 app.post('/api/users', async (req, res, next) => {
   console.log('req.body', req.body);
-  const { phoneNumber, facebookUsername, facebookPassword } = req.body;
-  const py = spawn('python', ['./get_facebook_tokens.py', facebookUsername, facebookPassword]);
-  let tokens = '';
-  py.stdout.on('data', function(data) {
-    tokens += data;
-  });
-  py.stdout.on('end', async function() {
-    const { facebookId, facebookAccessToken } = JSON.parse(tokens);
-    // TODO (nw): refactor the dupe code
-    const db = await util.promisify(MongoClient.connect)(MongoUrl);
-    const usersColl = db.collection('users');
-    const newUser = { facebookId, facebookAccessToken, phoneNumber };
-    usersColl.insert(newUser).then(() => {
-      console.log(`added ${JSON.stringify(newUser)} to database`);
-      res.sendStatus(200);
+  try {
+    const { phoneNumber, facebookUsername, facebookPassword } = req.body;
+    const py = spawn('python', ['./get_facebook_tokens.py', facebookUsername, facebookPassword]);
+    let tokens = '';
+    py.stdout.on('data', function(data) {
+      tokens += data;
     });
-  });
-  py.stdout.on('err', function() {
-    res.sendStatus(404);
-  });
+    py.stdout.on('end', async function() {
+      try {
+        const { facebookId, facebookAccessToken } = JSON.parse(tokens);
+      } catch(e) {
+        return res.sendStatus(400);
+      }
+      // TODO (nw): refactor the dupe code
+      const db = await util.promisify(MongoClient.connect)(MongoUrl);
+      const usersColl = db.collection('users');
+      const newUser = { facebookId, facebookAccessToken, phoneNumber };
+      usersColl.insert(newUser).then(() => {
+        console.log(`added ${JSON.stringify(newUser)} to database`);
+        res.sendStatus(200);
+      });
+    });
+    py.stdout.on('err', function() {
+      res.sendStatus(400);
+    });
+  } catch(e) {
+    res.sendStatus(400);
+  }
 });
 
 app.listen(2674, () => console.log('Example app listening on port 2674!'))
