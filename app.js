@@ -2,6 +2,7 @@
 
 const _ = require('lodash');
 const async = require('async');
+const spawn = require('child_process').spawn;
 const moment = require('moment');
 const process = require('process');
 const request = require('request');
@@ -59,7 +60,23 @@ app.post('/sms', async (req, res, next) => {
 
 app.post('/api/users', async (req, res, next) => {
   const { phoneNumber, facebookUsername, facebookPassword } = req.body;
-  // Need to generate the correct creds here
+  const py = spawn('python', ['./get_facebook_tokens.py', 'nawnate@gmail.com', 'lxiht.com']);
+  let tokens = '';
+  py.stdout.on('data', function(data) {
+    tokens += data;
+  });
+  py.stdout.on('end', async function() {
+    const { facebookId, facebookAccessToken } = JSON.parse(tokens);
+    // TODO (nw): refactor the dupe code
+    const db = await util.promisify(MongoClient.connect)(MongoUrl);
+    const usersColl = db.collection('users');
+    usersColl.insert({ facebookId, facebookAccessToken, phoneNumber }).then(() => {
+      res.sendStatus(200);
+    });
+  });
+  py.stdout.on('err', function() {
+    next(new Error('invalid credentials'));
+  });
 });
 
 app.listen(2674, () => console.log('Example app listening on port 2674!'))

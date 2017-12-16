@@ -1,8 +1,9 @@
+# This would be a frickin GREAT thing to have as a lambda...
 # Used from  https://github.com/philipperemy/Deep-Learning-Tinder/blob/master/tinder_token.py
 
 import re
 import sys
-
+import json
 import requests
 import robobrowser
 
@@ -47,6 +48,6 @@ else:
 fb_access_token = get_fb_access_token(facebook_username, facebook_password)
 fb_id = get_fb_id(fb_access_token)
 
-print 'Facebook Access Token: {}'.format(fb_access_token)
-print 'Facebook ID: {}'.format(fb_id)
+exports = {'facebookAccessToken':fb_access_token, 'facebookId':fb_id}
+print json.dumps(exports)
 

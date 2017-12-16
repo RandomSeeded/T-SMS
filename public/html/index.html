@@ -10,6 +10,7 @@
     <!-- Bulma Version 0.6.0 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.6.0/css/bulma.min.css" integrity="sha256-HEtF7HLJZSC3Le1HcsWbz1hDYFPZCqDhZa9QsCgVUdw=" crossorigin="anonymous" />
     <link rel="stylesheet" type="text/css" href="../css/landing.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
   </head>
   <body>
     <section class="hero is-info is-fullheight">
@@ -34,14 +35,6 @@
                 <a class="navbar-item" href="./contact.html">
                   Contact
                 </a>
-                <!--<span class="navbar-item">
-                  <a class="button is-white is-outlined is-small" href="https://github.com/dansup/bulma-templates/blob/master/templates/landing.html">
-                    <span class="icon">
-                      <i class="fa fa-github"></i>
-                    </span>
-                    <span>View Source</span>
-                  </a>
-                </span>-->
               </div>
             </div>
           </div>
@@ -61,33 +54,20 @@
               <figure class="avatar">
                 <img src="../images/facebook-icon.png">
               </figure>
-              <form>
+              <form id="target">
                 <div class="control">
                   <input class="input" type="text" placeholder="Facebook Username">
-                  <input class="input" type="text" placeholder="Facebook Password">
+                  <input class="input" type="password" placeholder="Facebook Password">
                   <input class="input" type="text" placeholder="Phone Number">
-                  <a class="button is-block is-info is-large">Create Account</a>
+                  <button type="submit" class="button is-link is-block is-large is-fullwidth">Create Account</button>
                 </div>
               </form>
             </div>
-            <!--<div class="box">
-              <div class="field is-grouped">
-                <p class="control is-expanded">
-                  <input class="input" type="text" placeholder="Enter your Facebook username">
-                  <input class="input" type="text" placeholder="Enter your Facebook password">
-                </p>
-                <p class="control">
-                  <a class="button is-info">
-                    Notify Me
-                  </a>
-                </p>
-              </div>
-            </div>-->
           </div>
         </div>
       </div>
 
     </section>
-    <script async type="text/javascript" src="../js/bulma.js"></script>
+    <script async type="text/javascript" src="../js/main.js"></script>
   </body>
 </html>
