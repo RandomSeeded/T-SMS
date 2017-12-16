@@ -72,7 +72,7 @@ app.post('/api/users', async (req, res, next) => {
     });
     py.stdout.on('end', async function() {
       try {
-        console.log(`data received from facebook response ${data}`);
+        console.log(`tokens received from facebook response ${tokens}`);
         // TODO (nw): refactor the dupe code
         const { facebookId, facebookAccessToken } = JSON.parse(tokens);
         const db = await util.promisify(MongoClient.connect)(MongoUrl);
@@ -83,6 +83,7 @@ app.post('/api/users', async (req, res, next) => {
           res.sendStatus(200);
         });
       } catch(e) {
+        console.log('e', e);
         return res.sendStatus(400);
       }
     });
@@ -90,6 +91,7 @@ app.post('/api/users', async (req, res, next) => {
       res.sendStatus(400);
     });
   } catch(e) {
+    console.log('e', e);
     res.sendStatus(400);
   }
 });
