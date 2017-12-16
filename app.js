@@ -4,6 +4,7 @@ const _ = require('lodash');
 const async = require('async');
 const spawn = require('child_process').spawn;
 const moment = require('moment');
+const path = require('path');
 const process = require('process');
 const request = require('request');
 const util = require('util');
@@ -31,7 +32,7 @@ let tinderSelfId;
 
 const express = require('express')
 const app = express()
-app.use(express.static('public'))
+app.use(express.static(path.join(__dirname, 'public')));
 
 const bodyParser = require('body-parser');
 
