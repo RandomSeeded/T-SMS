@@ -92,7 +92,7 @@ app.post('/api/users', async (req, res, next) => {
   }
 });
 
-app.listen(2674, () => console.log('Example app listening on port 2674!'))
+app.listen(2674, () => console.log(Date.now() + ':Example app listening on port 2674!'))
 
 async function sendMessage(matchId, message, facebookAccessToken, facebookId) {
   if (process.env.NODE_ENV === 'DEV') {
