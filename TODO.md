@@ -9,4 +9,5 @@ What does this page look like? Functionality you need:
 - Login? Is this necesssary? Nah...
 - About / contact (need a throwaway email that gets forwarded)
 
-TECH: write raw html? write in react? Just do as raw html for now, point is to get shit out there
+TECH: ideally should be react for the frontend, but can be just straight up raw html for now.
+Why a framework at all? B/c right now tons of duplicated code across html files. Not the best.

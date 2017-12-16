@@ -57,6 +57,11 @@ app.post('/sms', async (req, res, next) => {
   sendMessage(mostRecentMatch._id, messageBody, authToken);
 });
 
+app.post('/api/users', async (req, res, next) => {
+  const { phoneNumber, facebookUsername, facebookPassword } = req.body;
+  // Need to generate the correct creds here
+});
+
 app.listen(2674, () => console.log('Example app listening on port 2674!'))
 
 async function sendMessage(matchId, message, facebookAccessToken, facebookId) {
