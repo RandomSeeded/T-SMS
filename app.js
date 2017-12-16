@@ -71,18 +71,18 @@ app.post('/api/users', async (req, res, next) => {
     });
     py.stdout.on('end', async function() {
       try {
+        // TODO (nw): refactor the dupe code
         const { facebookId, facebookAccessToken } = JSON.parse(tokens);
+        const db = await util.promisify(MongoClient.connect)(MongoUrl);
+        const usersColl = db.collection('users');
+        const newUser = { facebookId, facebookAccessToken, phoneNumber };
+        usersColl.insert(newUser).then(() => {
+          console.log(`added ${JSON.stringify(newUser)} to database`);
+          res.sendStatus(200);
+        });
       } catch(e) {
         return res.sendStatus(400);
       }
-      // TODO (nw): refactor the dupe code
-      const db = await util.promisify(MongoClient.connect)(MongoUrl);
-      const usersColl = db.collection('users');
-      const newUser = { facebookId, facebookAccessToken, phoneNumber };
-      usersColl.insert(newUser).then(() => {
-        console.log(`added ${JSON.stringify(newUser)} to database`);
-        res.sendStatus(200);
-      });
     });
     py.stdout.on('err', function() {
       res.sendStatus(400);
@@ -210,7 +210,7 @@ async function getNewMessagesForMatch(match, authToken) {
 
 async function sendSMS(body, phoneNumber) {
   if (process.env.NODE_ENV === 'DEV') {
-  console.log('not sending SMS due to NODE_ENV=dev', body);
+    console.log('not sending SMS due to NODE_ENV=dev', body);
     return;
   }
   console.log('sending SMS', body);
@@ -225,7 +225,7 @@ async function sendSMS(body, phoneNumber) {
 
 function generateMessageBody(message) {
   return `From: ${message.name}
-    
+
     ${message.message}`;
 }
 

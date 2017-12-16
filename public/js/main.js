@@ -3,6 +3,7 @@
 $(document).ready(function(){
   $('#create-account').on('submit', function(e) {
     e.preventDefault();
+    $('#bad-credentials').addClass('is-hidden');
     var facebookUsername = $('input#facebookUsername').val();
     var facebookPassword = $('input#facebookPassword').val();
     var phoneNumber = $('input#phoneNumber').val();
@@ -13,7 +14,6 @@ $(document).ready(function(){
         $('#submit-button').addClass('is-success');
         $('#submit-button').prop('disabled',true);
         $('#submit-button').html('Done!');
-        $('#bad-credentials').addClass('is-hidden');
       })
       .fail(function() {
         $('#submit-button').removeClass('is-loading');
