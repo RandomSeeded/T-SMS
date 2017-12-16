@@ -60,7 +60,10 @@ app.post('/sms', async (req, res, next) => {
 app.listen(2674, () => console.log('Example app listening on port 2674!'))
 
 async function sendMessage(matchId, message, facebookAccessToken, facebookId) {
-  if (process.env.NODE_ENV === 'DEV') return;
+  if (process.env.NODE_ENV === 'DEV') {
+    console.log('not sending tinder message due to NODE_ENV=DEV', message);
+    return;
+  }
 
   console.log('sending tinder message', message);
   const [authToken, selfId] = await getAuthToken(facebookAccessToken, facebookId);
@@ -128,7 +131,7 @@ async function getMostRecentMatch(authToken) {
 // And set that equal to the poll time
 // Ya this is lame and not great...oh well
 function checkMatchHasRecentMessage(match) {
-  const recencyThreshold = moment().subtract(24, 'hours').valueOf();
+  const recencyThreshold = moment().subtract(24, 'months').valueOf();
   const lastMessageSentDate = _.get(match, 'messages[0].sent_date') || 0;
   return moment(lastMessageSentDate).valueOf() > recencyThreshold;
 }
@@ -171,7 +174,10 @@ async function getNewMessagesForMatch(match, authToken) {
 }
 
 async function sendSMS(body, phoneNumber) {
-  if (process.env.NODE_ENV === 'DEV') return;
+  if (process.env.NODE_ENV === 'DEV') {
+  console.log('not sending SMS due to NODE_ENV=dev', body);
+    return;
+  }
   console.log('sending SMS', body);
   return client.messages
     .create({
@@ -202,6 +208,7 @@ async function run(init) {
     const newMessages = await Promise.all(_.map(peopleWithNewMessages, 
       personWithNewMessage => getNewMessagesForMatch(personWithNewMessage, authToken)));
     const formattedMessages = _.map(_.flatten(newMessages), generateMessageBody);
+    console.log('formattedMessages', formattedMessages);
     // Don't send messages the first time we startup: this is just to populate the cache
     if (!init) {
       _.each(formattedMessages, formattedMessage => sendSMS(formattedMessage, user.phoneNumber));
