@@ -13,10 +13,11 @@ $(document).ready(function(){
         $('#submit-button').addClass('is-success');
         $('#submit-button').prop('disabled',true);
         $('#submit-button').html('Done!');
+        $('#bad-credentials').addClass('is-hidden');
       })
       .fail(function() {
         $('#submit-button').removeClass('is-loading');
-        // TODO (nw): put a message here telling them their facebook creds are invalid
+        $('#bad-credentials').removeClass('is-hidden');
       });
   });
 });
