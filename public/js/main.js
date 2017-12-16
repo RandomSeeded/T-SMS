@@ -1,8 +1,11 @@
 'use strict';
 
 $(document).ready(function(){
-  console.log('loaded');
-  $('#target').on('submit', function(e) {
-    console.log('submit');
+  $('#create-account').on('submit', function(e) {
+    e.preventDefault();
+    var facebookUsername = $('input#facebookUsername').val();
+    var facebookPassword = $('input#facebookPassword').val();
+    var phoneNumber = $('input#phoneNumber').val();
+    $.post('/api/users', { facebookUsername: facebookUsername, facebookPassword: facebookPassword, phoneNumber: phoneNumber });
   });
 });

@@ -31,6 +31,8 @@ let tinderSelfId;
 
 const express = require('express')
 const app = express()
+app.use(express.static('public'))
+
 const bodyParser = require('body-parser');
 
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -70,12 +72,14 @@ app.post('/api/users', async (req, res, next) => {
     // TODO (nw): refactor the dupe code
     const db = await util.promisify(MongoClient.connect)(MongoUrl);
     const usersColl = db.collection('users');
-    usersColl.insert({ facebookId, facebookAccessToken, phoneNumber }).then(() => {
+    const newUser = { facebookId, facebookAccessToken, phoneNumber };
+    usersColl.insert(newUser).then(() => {
+      console.log(`added ${JSON.stringify(newUser)} to database`);
       res.sendStatus(200);
     });
   });
   py.stdout.on('err', function() {
-    next(new Error('invalid credentials'));
+    res.sendStatus(404);
   });
 });
 
