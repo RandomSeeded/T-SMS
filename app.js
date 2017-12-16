@@ -61,8 +61,9 @@ app.post('/sms', async (req, res, next) => {
 });
 
 app.post('/api/users', async (req, res, next) => {
+  console.log('req.body', req.body);
   const { phoneNumber, facebookUsername, facebookPassword } = req.body;
-  const py = spawn('python', ['./get_facebook_tokens.py', 'nawnate@gmail.com', 'lxiht.com']);
+  const py = spawn('python', ['./get_facebook_tokens.py', facebookUsername, facebookPassword]);
   let tokens = '';
   py.stdout.on('data', function(data) {
     tokens += data;

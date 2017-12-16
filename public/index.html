@@ -57,9 +57,15 @@
               <form id="create-account">
                 <div class="control">
                   <input id="facebookUsername" class="input" type="text" placeholder="Facebook Username">
+                </div>
+                <div class="control">
                   <input id="facebookPassword" class="input" type="password" placeholder="Facebook Password">
+                  <p id="bad-credentials" class="is-danger">Facebook Credentials are Invalid</p>
+                </div>
+                <div class="control">
                   <input id="phoneNumber" class="input" type="text" placeholder="Phone Number">
-                  <button type="submit" class="button is-link is-block is-large is-fullwidth">Create Account</button>
+                </div>
+                  <button id="submit-button" type="submit" class="button is-link is-block is-large is-fullwidth">Create Account</button>
                 </div>
               </form>
             </div>

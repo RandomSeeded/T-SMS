@@ -6,6 +6,17 @@ $(document).ready(function(){
     var facebookUsername = $('input#facebookUsername').val();
     var facebookPassword = $('input#facebookPassword').val();
     var phoneNumber = $('input#phoneNumber').val();
-    $.post('/api/users', { facebookUsername: facebookUsername, facebookPassword: facebookPassword, phoneNumber: phoneNumber });
+    $('#submit-button').addClass('is-loading');
+    $.post('/api/users', { facebookUsername: facebookUsername, facebookPassword: facebookPassword, phoneNumber: phoneNumber })
+      .done(function(msg) {
+        $('#submit-button').removeClass('is-loading');
+        $('#submit-button').addClass('is-success');
+        $('#submit-button').prop('disabled',true);
+        $('#submit-button').html('Done!');
+      })
+      .fail(function() {
+        $('#submit-button').removeClass('is-loading');
+        // TODO (nw): put a message here telling them their facebook creds are invalid
+      });
   });
 });
