@@ -92,7 +92,7 @@ app.post('/api/users', async (req, res, next) => {
   }
 });
 
-app.listen(2674, () => console.log(Date.now() + ':Example app listening on port 2674!'))
+app.listen(2674, () => console.log(`${moment().format()}: Example app listening on port 2674!`))
 
 async function sendMessage(matchId, message, facebookAccessToken, facebookId) {
   if (process.env.NODE_ENV === 'DEV') {
@@ -243,7 +243,6 @@ async function run(init) {
     const newMessages = await Promise.all(_.map(peopleWithNewMessages, 
       personWithNewMessage => getNewMessagesForMatch(personWithNewMessage, authToken)));
     const formattedMessages = _.map(_.flatten(newMessages), generateMessageBody);
-    console.log('formattedMessages', formattedMessages);
     // Don't send messages the first time we startup: this is just to populate the cache
     if (!init) {
       _.each(formattedMessages, formattedMessage => sendSMS(formattedMessage, user.phoneNumber));
