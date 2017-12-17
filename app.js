@@ -62,7 +62,6 @@ app.post('/sms', async (req, res, next) => {
 });
 
 app.post('/api/users', async (req, res, next) => {
-  console.log('req.body', req.body);
   try {
     const { phoneNumber, facebookUsername, facebookPassword } = req.body;
     const py = spawn('python', [path.join(__dirname, '/get_facebook_tokens.py'), facebookUsername, facebookPassword]);
