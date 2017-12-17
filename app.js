@@ -87,7 +87,8 @@ app.post('/api/users', async (req, res, next) => {
         return res.sendStatus(400);
       }
     });
-    py.stdout.on('err', function() {
+    py.stdout.on('err', function(err) {
+      consolerr.log('err', err);
       res.sendStatus(400);
     });
   } catch(e) {
