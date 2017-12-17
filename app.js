@@ -171,7 +171,7 @@ async function getMostRecentMatch(authToken) {
 // And set that equal to the poll time
 // Ya this is lame and not great...oh well
 function checkMatchHasRecentMessage(match) {
-  const recencyThreshold = moment().subtract(24, 'months').valueOf();
+  const recencyThreshold = moment().subtract(1, 'months').valueOf();
   const lastMessageSentDate = _.get(match, 'messages[0].sent_date') || 0;
   return moment(lastMessageSentDate).valueOf() > recencyThreshold;
 }
