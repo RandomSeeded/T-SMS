@@ -28,8 +28,6 @@ const baseHeaders = {
   'User-agent': 'Tinder/7.5.3 (iPhone; iOS 10.3.2; Scale/2.00)',
 };
 
-let tinderSelfId;
-
 const express = require('express')
 const app = express()
 app.use(express.static(path.join(__dirname, 'public')));
@@ -174,7 +172,7 @@ function checkMatchHasRecentMessage(match) {
   return moment(lastMessageSentDate).valueOf() > recencyThreshold;
 }
 
-async function getNewMessagesForMatch(match, authToken) {
+async function getNewMessagesForMatch(match, authToken, tinderSelfId) {
   // TODO (nw): dedupe this
   const db = await util.promisify(MongoClient.connect)(MongoUrl);
   const messagesColl = db.collection('messages');
@@ -240,11 +238,11 @@ async function run(init) {
   _.each(users, async user => {
     const { facebookAccessToken, facebookId } = user;
     const [authToken, selfId] = await getAuthToken(facebookAccessToken, facebookId);
-    tinderSelfId = selfId;
+    const tinderSelfId = selfId;
     const matches = await getMatches(authToken);
     const peopleWithNewMessages = _.filter(matches, checkMatchHasRecentMessage);
     const newMessages = await Promise.all(_.map(peopleWithNewMessages, 
-      personWithNewMessage => getNewMessagesForMatch(personWithNewMessage, authToken)));
+      personWithNewMessage => getNewMessagesForMatch(personWithNewMessage, authToken, tinderSelfId)));
     const formattedMessages = _.map(_.flatten(newMessages), generateMessageBody);
     // Don't send messages the first time we startup: this is just to populate the cache
     if (!init) {
