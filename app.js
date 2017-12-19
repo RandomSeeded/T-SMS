@@ -98,14 +98,13 @@ app.post('/api/users', async (req, res, next) => {
 
 app.listen(2674, () => console.log(`${moment().format()}: Example app listening on port 2674!`))
 
-async function sendMessage(matchId, message, facebookAccessToken, facebookId) {
+async function sendMessage(matchId, message, authToken) {
   if (process.env.NODE_ENV === 'DEV') {
     console.log('not sending tinder message due to NODE_ENV=DEV', message);
     return;
   }
 
   console.log('sending tinder message', message);
-  const [authToken, selfId] = await getAuthToken(facebookAccessToken, facebookId);
   const headers = _.extend(baseHeaders, {
     ['X-Auth-Token']: authToken,
   });
