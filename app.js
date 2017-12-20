@@ -255,6 +255,10 @@ process.on('uncaughtException', function(err) {
   console.log(`${moment().format()}: exiting with err ${err}`);
   process.exit(1);
 });
+process.on('uncaughtRejection', function(err) {
+  console.log(`${moment().format()}: exiting with err ${err}`);
+  process.exit(1);
+});
 
 run(true);
 setInterval(() => {
